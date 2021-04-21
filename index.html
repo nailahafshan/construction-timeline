@@ -56,8 +56,185 @@
             </table>
         </div>
         <div>
-          
+            <!-- Canvas -->
+            <canvas id="c" width="700" height="300" style="border:1px solid"></canvas>
+            <!-- Slider  -->
+            <br>
+            <label for="customRange2" class="form-label", id="rangeLabel">Progress</label></br>
+            <input type="range" class="form-range" min="0" max="15" id="customRange2"
+                style="width:75%;" onchange="updateTask(this.value);">
+        </div>
+    </div>
 
 
+    <!-- Bootstrap stuff -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+        import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js';
+
+        // export function main() {
+        const canvas = document.querySelector('#c');
+        const renderer = new THREE.WebGLRenderer({ canvas });
+
+        const fov = 75;
+        const aspect = 2;  // the canvas default
+        const near = 0.1;
+        const far = 250;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.z = 15;
+        camera.position.y = 10;
+        camera.position.x = 5;
+
+        const controls = new OrbitControls(camera, canvas);
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('white');
+
+        function addLight(...pos) {
+            const color = 0xFFFFFF;
+            const intensity = 1;
+            const light = new THREE.DirectionalLight(color, intensity);
+            light.position.set(...pos);
+            scene.add(light);
+        }
+        addLight(-1, 2, 4);
+        addLight(1, -1, -2);
+
+        function makeInstance(geometry, c, x, y, z) {
+            const material = new THREE.MeshBasicMaterial({
+                color: c,
+                opacity: 0.5,
+                transparent: true
+            })
+
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            cube.position.set(x, y, z);
+
+            return cube;
+        }
+
+        function hsl(h, s, l) {
+            return (new THREE.Color()).setHSL(h, s, l);
+        }
+
+        const columnWidth = 1;
+        const columnHeight = 10;
+        const columnDepth = 1;
+        const slabHeight = 1;
+        const slabWidth = 12;
+        const slabDepth = 12;
+        const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth);
+        const slabGeometry = new THREE.BoxGeometry(slabWidth, slabHeight, slabDepth);
+
+        var defaultColor = 0x999999; // some gray
+        let constructionElements = new Map();
+        const d = 1;
+        var col1 = makeInstance(columnGeometry, defaultColor, -(slabWidth / 2 - 1), -d, slabWidth / 2 - 1);
+        constructionElements.set("Column1", col1);
+        var col2 = makeInstance(columnGeometry, defaultColor, slabWidth / 2 - 1, -d, slabWidth / 2 - 1);
+        constructionElements.set("Column2", col2);
+        var col3 = makeInstance(columnGeometry, defaultColor, slabWidth / 2 - 1, -d, -(slabDepth / 2 - 1));
+        constructionElements.set("Column3", col3);
+        var col4 = makeInstance(columnGeometry, defaultColor, -(slabWidth / 2 - 1), -d, -(slabDepth / 2 - 1));
+        constructionElements.set("Column4", col4);
+        var slab = makeInstance(slabGeometry, defaultColor, 0, columnHeight / 2 - d / 2, 0)
+        constructionElements.set("Slab", slab);
+
+        function resizeRendererToDisplaySize(renderer) {
+            const canvas = renderer.domElement;
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            const needResize = canvas.width !== width || canvas.height !== height;
+            if (needResize) {
+                renderer.setSize(width, height, false);
+            }
+            return needResize;
+        }
+
+        let renderRequested = false;
+
+        function render() {
+            renderRequested = undefined;
+
+            if (resizeRendererToDisplaySize(renderer)) {
+                const canvas = renderer.domElement;
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+            }
+
+            renderer.render(scene, camera);
+        }
+        render();
+
+        function requestRenderIfNotRequested() {
+            if (!renderRequested) {
+                renderRequested = true;
+                requestAnimationFrame(render);
+            }
+        }
+
+        controls.addEventListener('change', requestRenderIfNotRequested);
+        window.addEventListener('resize', requestRenderIfNotRequested);
+
+        var activeColor = 0xff0000;
+        var finishColor = 0x00ff00;
+
+        var prevValue = document.getElementById('customRange2').value;
+        var maxValue = document.getElementById('customRange2').max;
+
+        function setColorAllElements(constructionElements, color) {
+            for (let [key, value] of constructionElements) {
+                value.material.color.setHex(color);
+                // requestRenderIfNotRequested();
+            }
+        }
+        window.updateTask = function updateTask(val) {
+            document.getElementById('rangeLabel').innerText = "Progress Day:" + val;
+            if (val == maxValue) {
+                console.log(val, maxValue)
+                setColorAllElements(constructionElements, finishColor);
+                requestRenderIfNotRequested();
+                return;
+            }
+            var task = getTaskFromTable(val);
+            if (constructionElements.has(task)) {
+                // Switch previous element as inactive
+                setColorAllElements(constructionElements, defaultColor);
+                // var prevElement = constructionElements.get(getTaskFromTable(prevValue));
+                // prevElement.material.color.setHex(defaultColor);
+                // Set the element where new slider lands as active
+                var element = constructionElements.get(task);
+                element.material.color.setHex(activeColor);
+                requestRenderIfNotRequested();
+                prevValue = val;
+            }
+        }
+        updateTask(prevValue);
+
+        function getTaskFromTable(val) {
+            var table = document.getElementById('tasksTable');
+            for (var i = 1, row; row = table.rows[i]; i++) {
+                var start = parseInt(row.cells[1].innerText, 10);
+                var end = parseInt(row.cells[2].innerText);
+                if (val >= start && val <= end) {
+                    return row.cells[0].innerText;
+                }
+            }
+        }
+    </script>
+</body>
 
 </html>
