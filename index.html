@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -10,10 +11,17 @@
         body {
             margin: 0;
         }
+
+	h2 {
+	text-align: center;
+	}
+	
+	
     </style>
 </head>
 
-<body>
+<body></br>
+	<h2>Construction Schedule</h2></br></br>
     <div class=row>
         <div class="col">
 
@@ -57,14 +65,23 @@
         </div>
         <div>
             <!-- Canvas -->
-            <canvas id="c" width="700" height="300" style="border:1px solid"></canvas>
+            <canvas id="c" width="700" height="300" style="border:2px solid #000000" ></canvas>
+		<!--<script>
+		var cv = document.getElementById("c");
+		var bg=cv.getContext("2d");
+		 bg.fillStyle = "#999999";
+		bg.fillRect(0, 0, cv.width, cv.height);
+      		 cv.fill();
+		</script>-->
             <!-- Slider  -->
             <br>
             <label for="customRange2" class="form-label", id="rangeLabel">Progress</label></br>
-            <input type="range" class="form-range" min="0" max="15" id="customRange2"
+            <input type="range" class="form-range" min="0" max="15" value="0" id="customRange2"
                 style="width:75%;" onchange="updateTask(this.value);">
+		
         </div>
     </div>
+
 
 
     <!-- Bootstrap stuff -->
@@ -99,7 +116,7 @@
         controls.update();
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color('white');
+        scene.background = new THREE.Color('grey');
 
         function addLight(...pos) {
             const color = 0xFFFFFF;
@@ -114,7 +131,7 @@
         function makeInstance(geometry, c, x, y, z) {
             const material = new THREE.MeshBasicMaterial({
                 color: c,
-                opacity: 0.5,
+                opacity: 0.8,
                 transparent: true
             })
 
@@ -139,7 +156,7 @@
         const columnGeometry = new THREE.BoxGeometry(columnWidth, columnHeight, columnDepth);
         const slabGeometry = new THREE.BoxGeometry(slabWidth, slabHeight, slabDepth);
 
-        var defaultColor = 0x999999; // some gray
+        var defaultColor = 0xA9A9A9; // some grey
         let constructionElements = new Map();
         const d = 1;
         var col1 = makeInstance(columnGeometry, defaultColor, -(slabWidth / 2 - 1), -d, slabWidth / 2 - 1);
@@ -189,8 +206,9 @@
         controls.addEventListener('change', requestRenderIfNotRequested);
         window.addEventListener('resize', requestRenderIfNotRequested);
 
-        var activeColor = 0xff0000;
-        var finishColor = 0x00ff00;
+        var activeColor = 0x00ff00;
+	var elementfinishColor = 0xffffff;
+        var finishColor = 0xffffff;
 
         var prevValue = document.getElementById('customRange2').value;
         var maxValue = document.getElementById('customRange2').max;
@@ -212,9 +230,9 @@
             var task = getTaskFromTable(val);
             if (constructionElements.has(task)) {
                 // Switch previous element as inactive
-                setColorAllElements(constructionElements, defaultColor);
-                // var prevElement = constructionElements.get(getTaskFromTable(prevValue));
-                // prevElement.material.color.setHex(defaultColor);
+                // setColorAllElements(constructionElements, defaultColor);
+                var prevElement = constructionElements.get(getTaskFromTable(prevValue));
+                prevElement.material.color.setHex(elementfinishColor);
                 // Set the element where new slider lands as active
                 var element = constructionElements.get(task);
                 element.material.color.setHex(activeColor);
@@ -236,5 +254,4 @@
         }
     </script>
 </body>
-
 </html>
