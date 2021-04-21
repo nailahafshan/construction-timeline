@@ -1,9 +1,11 @@
 
+
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
+	<!--Linking toBootstrap stylesheet-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Construction Timeline</title>
@@ -64,15 +66,10 @@
             </table>
         </div>
         <div>
+
             <!-- Canvas -->
             <canvas id="c" width="700" height="300" style="border:2px solid #000000" ></canvas>
-		<!--<script>
-		var cv = document.getElementById("c");
-		var bg=cv.getContext("2d");
-		 bg.fillStyle = "#999999";
-		bg.fillRect(0, 0, cv.width, cv.height);
-      		 cv.fill();
-		</script>-->
+		
             <!-- Slider  -->
             <br>
             <label for="customRange2" class="form-label", id="rangeLabel">Progress</label></br>
@@ -84,16 +81,20 @@
 
 
 
-    <!-- Bootstrap stuff -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    <!-- Linking to Bootstrap script files-->
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+   	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+
+    
+
+	<!--Loadinging three.js -->
     <script type="module">
         import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
         import { OrbitControls } from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/examples/jsm/controls/OrbitControls.js';
@@ -101,10 +102,10 @@
         // export function main() {
         const canvas = document.querySelector('#c');
         const renderer = new THREE.WebGLRenderer({ canvas });
-
-        const fov = 75;
-        const aspect = 2;  // the canvas default
-        const near = 0.1;
+ 	// Creating perspective camera
+        const fov = 75;	   //field of view
+        const aspect = 2;  // the canvas default display aspect
+        const near = 0.1;  // near and far represent the space in front of the camera that will be rendered
         const far = 250;
         const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         camera.position.z = 15;
@@ -114,10 +115,14 @@
         const controls = new OrbitControls(camera, canvas);
         controls.target.set(0, 0, 0);
         controls.update();
-
+	
+	// Making a scene
         const scene = new THREE.Scene();
+
+	//Set background color of canvas context to grey
         scene.background = new THREE.Color('grey');
 
+	// Adding light to 3D scene
         function addLight(...pos) {
             const color = 0xFFFFFF;
             const intensity = 1;
@@ -128,15 +133,18 @@
         addLight(-1, 2, 4);
         addLight(1, -1, -2);
 
-        function makeInstance(geometry, c, x, y, z) {
-            const material = new THREE.MeshBasicMaterial({
+	//Adding table to the scene/canvas
+
+        function makeInstance(geometry, c, x, y, z) 
+	   {
+            const material = new THREE.MeshBasicMaterial({  //Creating basic material and set its color
                 color: c,
                 opacity: 0.8,
                 transparent: true
             })
 
-            const cube = new THREE.Mesh(geometry, material);
-            scene.add(cube);
+            const cube = new THREE.Mesh(geometry, material); // Creating mesh
+            scene.add(cube); // Adding mesh to the scene
 
             cube.position.set(x, y, z);
 
@@ -147,6 +155,7 @@
             return (new THREE.Color()).setHSL(h, s, l);
         }
 
+	// Creating BoxGeometry
         const columnWidth = 1;
         const columnHeight = 10;
         const columnDepth = 1;
@@ -159,6 +168,8 @@
         var defaultColor = 0xA9A9A9; // some grey
         let constructionElements = new Map();
         const d = 1;
+
+	//Creating table columns and slab
         var col1 = makeInstance(columnGeometry, defaultColor, -(slabWidth / 2 - 1), -d, slabWidth / 2 - 1);
         constructionElements.set("Column1", col1);
         var col2 = makeInstance(columnGeometry, defaultColor, slabWidth / 2 - 1, -d, slabWidth / 2 - 1);
@@ -169,6 +180,8 @@
         constructionElements.set("Column4", col4);
         var slab = makeInstance(slabGeometry, defaultColor, 0, columnHeight / 2 - d / 2, 0)
         constructionElements.set("Slab", slab);
+
+	//Setting the size of renderer's canvas
 
         function resizeRendererToDisplaySize(renderer) {
             const canvas = renderer.domElement;
@@ -192,14 +205,14 @@
                 camera.updateProjectionMatrix();
             }
 
-            renderer.render(scene, camera);
+            renderer.render(scene, camera);  //Rendering the scene
         }
         render();
 
         function requestRenderIfNotRequested() {
             if (!renderRequested) {
                 renderRequested = true;
-                requestAnimationFrame(render);
+                requestAnimationFrame(render);  // Animating the scene
             }
         }
 
@@ -207,8 +220,7 @@
         window.addEventListener('resize', requestRenderIfNotRequested);
 
         var activeColor = 0x00ff00;
-	var elementfinishColor = 0xffffff;
-        var finishColor = 0xffffff;
+	var finishColor = 0xffffff;
 
         var prevValue = document.getElementById('customRange2').value;
         var maxValue = document.getElementById('customRange2').max;
@@ -216,10 +228,12 @@
         function setColorAllElements(constructionElements, color) {
             for (let [key, value] of constructionElements) {
                 value.material.color.setHex(color);
-                // requestRenderIfNotRequested();
+               
             }
         }
-        window.updateTask = function updateTask(val) {
+
+		//Setting green color to element on its end day/completion
+       	    window.updateTask = function updateTask(val) {
             document.getElementById('rangeLabel').innerText = "Progress Day:" + val;
             if (val == maxValue) {
                 console.log(val, maxValue)
@@ -228,11 +242,15 @@
                 return;
             }
             var task = getTaskFromTable(val);
-            if (constructionElements.has(task)) {
+
+		//Changing colors of table elements as timeliner moves
+           
+	   if (constructionElements.has(task))
+	   {
                 // Switch previous element as inactive
-                // setColorAllElements(constructionElements, defaultColor);
+            
                 var prevElement = constructionElements.get(getTaskFromTable(prevValue));
-                prevElement.material.color.setHex(elementfinishColor);
+                prevElement.material.color.setHex(finishColor);
                 // Set the element where new slider lands as active
                 var element = constructionElements.get(task);
                 element.material.color.setHex(activeColor);
@@ -241,8 +259,11 @@
             }
         }
         updateTask(prevValue);
+		
+		//Linking table and timeliner
 
-        function getTaskFromTable(val) {
+        function getTaskFromTable(val) 
+		{
             var table = document.getElementById('tasksTable');
             for (var i = 1, row; row = table.rows[i]; i++) {
                 var start = parseInt(row.cells[1].innerText, 10);
